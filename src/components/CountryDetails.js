@@ -1,14 +1,22 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 const CountryDetails = (props) => {
   const { alpha3Code } = useParams();
+  const [foundCountry, setFoundCountry] = useState(null);
 
-  let foundCountry = props.countryList.find((country) => {
-    return country.alpha3Code === alpha3Code;
-  });
+  // let foundCountry = props.countryList.find((country) => {
+  //   return country.alpha3Code === alpha3Code;
+  // });
+  useEffect(() => {
+    axios
+      .get(`https://ih-countries-api.herokuapp.com/countries/${alpha3Code}`)
+      .then((res) => setFoundCountry(res.data))
+      .catch((err) => console.log(err));
+  }, [alpha3Code]);
 
-  let findBorders = foundCountry.borders.map((countries) => {
+  let findBorders = foundCountry?.borders.map((countries) => {
     return (
       <Link to={`/${countries}`}>
         <div className="list-group-item list-group-item-action">
@@ -18,7 +26,7 @@ const CountryDetails = (props) => {
     );
   });
 
-  return (
+  return foundCountry ? (
     <div>
       <h1>{foundCountry.name.common}</h1>
       <table className="table">
@@ -44,6 +52,8 @@ const CountryDetails = (props) => {
         </tbody>
       </table>
     </div>
+  ) : (
+    <p>Loading...</p>
   );
 };
 
